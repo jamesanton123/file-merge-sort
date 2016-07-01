@@ -1,11 +1,8 @@
-package com.jamesanton.cruncher.data;
+package data;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import com.jamesanton.cruncher.util.FileUtil;
-import com.jamesanton.cruncher.util.RandomUtil;
 
 /**
  * This is just a small utility to create files with random numbers as the lines
@@ -24,6 +21,7 @@ public class BigFileCreator {
 	 * @param endIndex
 	 */
 	public File createFileWithRandomNumbersAsLines(String name, long startIndex, long endIndex) {
+		System.out.println("Begin creating big random number line file");
 		File file = null;
 		try {
 			file = File.createTempFile(name, null);
@@ -35,7 +33,8 @@ public class BigFileCreator {
 			String outString = "";
 			byte[] bytes = null;
 			for (long i = startIndex; i < endIndex; i++) {
-				outString = Integer.toString(RandomUtil.getRandomNumber(1, endIndex)) + "\n";
+				if(i % 100000 == 0) System.out.println(i + " of " + endIndex);
+				outString = Integer.toString(getRandomNumber(1, endIndex)) + "\n";
 				bytes = outString.getBytes();
 				fop.write(bytes);
 				fop.flush();
@@ -46,9 +45,8 @@ public class BigFileCreator {
 		}
 		return file;
 	}
-
-
-
 	
-
+	private int getRandomNumber(long min, long max) {
+		return (int) (Math.random() * max + min);
+	}
 }

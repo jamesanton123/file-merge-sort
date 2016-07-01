@@ -7,11 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -27,8 +23,7 @@ import com.jamesanton.cruncher.util.FileUtil;
  */
 public class FileSorter {
 	private int numFilesToBreakInto;
-	private int maximumNumberOfLinesPerFile = 10000;
-
+	private int maximumNumberOfLinesPerFile = 1000000;
 	
 	public File sortFile(File inFile, Comparator<String> lineComparator) {
 		File out = null;
@@ -54,6 +49,7 @@ public class FileSorter {
 	 * @throws IOException 
 	 */
 	private File mergeSortedFiles(String sortedPath, String outFile, Comparator<String> lineComparator) throws IOException {
+		System.out.println("Begin merging");
 		File out = FileUtil.createFileIfNotExists(outFile);
 		List<BufferedReader> buffers = new ArrayList<BufferedReader>();
 		List<String> bufferTop = new ArrayList<String>(buffers.size());
@@ -62,6 +58,7 @@ public class FileSorter {
 		for(File in : (new File(sortedPath).listFiles())){
 			buffers.add(new BufferedReader(new FileReader(in.getAbsolutePath())));
 		}
+		System.out.println("num buffered readers = " + buffers.size());
 		
 		// At this point each buffer is sitting on a file waiting to drain it
 		
@@ -106,6 +103,7 @@ public class FileSorter {
 	 * @param outPath
 	 */
 	private void sortSmallFiles(String inPath, String outPath, Comparator<String> lineComparator) {
+		System.out.println("Begin sorting smaller files");
 		(new File(outPath)).mkdirs();
 		for (File f : (new File(inPath).listFiles())) {
 			List<String> lines = null;
@@ -132,6 +130,7 @@ public class FileSorter {
 	 * @param brokenUpFilePath 
 	 */
 	private void breakUpFile(File f, String brokenUpFilePath) {
+		System.out.println("Begin splitting");
 		FileOutputStream fos = null;
 		String line;
 		// Create new broken up file path
