@@ -35,7 +35,7 @@ public class BigFileCreator {
 			String outString = "";
 			byte[] bytes = null;
 			for (long i = startIndex; i < endIndex; i++) {
-				if(i % 100000 == 0) System.out.println(i + " of " + endIndex);
+				if(i % 100000 == 0) LOG.info(i + " of " + endIndex);
 				outString = Integer.toString(getRandomNumber(1, endIndex)) + "\n";
 				bytes = outString.getBytes();
 				fop.write(bytes);

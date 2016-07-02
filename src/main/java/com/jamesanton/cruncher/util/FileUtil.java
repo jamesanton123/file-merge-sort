@@ -36,7 +36,7 @@ public class FileUtil {
 		for (String path : paths) {
 			File f = new File(path);
 			if (f != null && f.exists()) {
-				FileUtils.forceDelete(new File(path));
+				FileUtils.forceDelete(f);
 			}
 		}
 	}
