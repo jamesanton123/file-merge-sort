@@ -17,7 +17,7 @@ public class FileUtil {
 	 */
 	public static File createFileIfNotExists(String path) {
 		File f = new File(path);
-		if(f.exists()){
+		if(!f.exists()){
 			try {
 				f.createNewFile();
 			} catch (IOException e) {
