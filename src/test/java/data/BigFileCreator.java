@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
+import com.jamesanton.cruncher.data.FileSorter;
+
 /**
  * This is just a small utility to create files with random numbers as the lines
  * in the file, and can create small or very large files on the file system.
@@ -12,6 +16,8 @@ import java.io.IOException;
  *
  */
 public class BigFileCreator {
+	private static final Logger LOG = Logger.getLogger(BigFileCreator.class);
+
 	/**
 	 * Creates a new file at the specified path, where each of the rows in the
 	 * file is a random number between 1 and the endIndex.
@@ -19,16 +25,12 @@ public class BigFileCreator {
 	 * @param path
 	 * @param startIndex
 	 * @param endIndex
+	 * @throws IOException 
 	 */
-	public File createFileWithRandomNumbersAsLines(String name, long startIndex, long endIndex) {
-		System.out.println("Begin creating big random number line file");
-		File file = null;
-		try {
-			file = File.createTempFile(name, null);
-			file.deleteOnExit();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+	public File createFileWithRandomNumbersAsLines(String name, long startIndex, long endIndex) throws IOException {
+		LOG.info("Begin creating big random number line file");
+		File file = File.createTempFile(name, null);
+		
 		try (FileOutputStream fop = new FileOutputStream(file)) {
 			String outString = "";
 			byte[] bytes = null;
@@ -41,7 +43,7 @@ public class BigFileCreator {
 			}
 			fop.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOG.error("Error when creating large test file");
 		}
 		return file;
 	}
