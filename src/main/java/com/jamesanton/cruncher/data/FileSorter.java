@@ -1,17 +1,20 @@
 package com.jamesanton.cruncher.data;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
 
 import com.jamesanton.cruncher.util.FileUtil;
@@ -44,20 +47,18 @@ public class FileSorter {
 		return out;
 	}
 
-	
-
 	/**
-	 * Finds the index of the first item in a collection after sorting it 
+	 * Clones an array, sorts the clone, binary searches the 
+	 * original array for index of the first value in the cloned list
 	 * with the given comparator
 	 * @param bufferTop
 	 * @param lineComparator
 	 * @return
 	 */
-	private int getLowestItemIndex(List<String> bufferTop,
-			Comparator<String> lineComparator) {
-		List<String> clone = new ArrayList<String>(bufferTop);
-		Collections.sort(clone, lineComparator);
-		return bufferTop.indexOf(clone.get(0));
+	private int getLowestItemIndex(String[] bufferTop, Comparator<String> lineComparator) {
+		String[] clone = bufferTop.clone();
+		Arrays.sort(clone, lineComparator);
+		return Arrays.asList(bufferTop).indexOf(clone[0]);
 	}
 
 	/**
@@ -70,7 +71,7 @@ public class FileSorter {
 	private void breakUpFile(File f)
 			throws IOException {
 		LOG.info("Begin splitting your file");
-		FileOutputStream fos = null;
+		BufferedWriter bw = null;
 		String line;
 		// Create new broken up file path
 		(new File(BROKEN_UP_PATH)).mkdirs();
@@ -79,26 +80,23 @@ public class FileSorter {
 			long numLinesWrittenInFile = 0;
 			long numFilesCreated = 0;
 			File smallFile;
-			byte[] bytes = null;
 			while ((line = br.readLine()) != null) {
 				// Create a new file if we need to
 				if (numLinesWrittenInFile == 0) {
-					if(fos != null){
+					if(bw != null){
 						try {				
-							fos.close();
+							bw.close();
 						} catch (IOException e) {
-							LOG.error("Couldn't close file output stream", e);
+							LOG.error("Couldn't close buffered writer when splitting up the files", e);
 						}
 					}
 					smallFile = FileUtil.createFileIfNotExists(BROKEN_UP_PATH + File.separator + "part" + (numFilesCreated + 1));
-					fos = new FileOutputStream(smallFile);
+					bw = new BufferedWriter(new FileWriter(smallFile));
 					numFilesCreated++;
 				}
 				// Write the line
-				line += "\n";
-				bytes = line.getBytes();
-				fos.write(bytes);
-				fos.flush();				
+				bw.write(line);
+				bw.write("\n");
 				// Increment accordingly
 				numLinesWrittenInFile++;
 				if (numLinesWrittenInFile == MAX_LINES_PER_SMALL_FILE) {
@@ -106,11 +104,11 @@ public class FileSorter {
 				}
 			}
 		} finally {
-			if(fos != null){
+			if(bw != null){
 				try {				
-					fos.close();
+					bw.close();
 				} catch (IOException e) {
-					LOG.error("Couldn't close file output stream", e);
+					LOG.error("Couldn't close buffered writer", e);
 				}
 			}
 			if(br != null){
@@ -150,49 +148,42 @@ public class FileSorter {
 		LOG.info("Begin merging");
 		File out = FileUtil.createFileIfNotExists(OUT_FILE);
 		List<BufferedReader> bufferedReaders = new ArrayList<BufferedReader>();
-
-		List<String> bufferTop = new ArrayList<String>(bufferedReaders.size());
 		// Create a buffered reader for each of the sorted files
 		for (File in : (new File(SORTED_PATH).listFiles())) {
 			bufferedReaders.add(new BufferedReader(new FileReader(in.getAbsolutePath())));			
 		}
-		
 		LOG.info("num buffered readers = " + bufferedReaders.size());
-
-		// At this point each buffer is sitting on a file waiting to drain it
-
 		// Set the initial bufferTops
+		String[] buffersTop = new String[bufferedReaders.size()];
 		for (int i = 0; i < bufferedReaders.size(); i++) {
-			bufferTop.add(i, bufferedReaders.get(i).readLine());
+			buffersTop[i] = bufferedReaders.get(i).readLine();
 		}
 		int index = -1;
-		FileWriter fw = null;
+		BufferedWriter bw = null;
 		try{
-			fw = new FileWriter(out);
-			while (bufferTop.size() > 0) {
+			bw = new BufferedWriter(new FileWriter(out));
+			while (buffersTop.length > 0) {
 				// Find the index of the first item after its sorted
-				index = getLowestItemIndex(bufferTop, lineComparator);
-				// Write the line from that buffertop index to the file
-				String value = bufferTop.get(index);
-				fw.write(value + "\n");
-
+				index = getLowestItemIndex(buffersTop, lineComparator);				
+				bw.write(buffersTop[index]);
+				bw.write("\n");
 				// Pop the next string from the buffered reader at that index 
-				String nextVal = bufferedReaders.get(index).readLine();	
+				String nextVal = bufferedReaders.get(index).readLine();
 				if (nextVal != null) {
 					// Put it into the buffertop at that index
-					bufferTop.set(index, nextVal);
+					buffersTop[index] = nextVal;
 				} else {
 					//  What to do if the buffered reader runs out of data? Close it and remove it from the list.
-					bufferTop.remove(index);
+					buffersTop = ArrayUtils.removeElement(buffersTop, buffersTop[index]);
 					bufferedReaders.get(index).close();
 					bufferedReaders.remove(index);
 				}
 			}
-		}finally{
+		}finally{			
 			try{
-				fw.close();
+				bw.close();
 			}catch(IOException e){
-				LOG.error("Couldn't close file writer while merging.", e);
+				LOG.error("Couldn't close buffered writer while merging.", e);
 			}
 			// Make sure the buffered readers were closed even if we had an error
 			for (BufferedReader br : bufferedReaders) {
@@ -205,5 +196,4 @@ public class FileSorter {
 		}		
 		return out;
 	}
-
 }

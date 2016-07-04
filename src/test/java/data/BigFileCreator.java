@@ -1,7 +1,9 @@
 package data;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
@@ -30,20 +32,17 @@ public class BigFileCreator {
 	public File createFileWithRandomNumbersAsLines(String name, long startIndex, long endIndex) throws IOException {
 		LOG.info("Begin creating big random number line file");
 		File file = File.createTempFile(name, null);
-		
-		try (FileOutputStream fop = new FileOutputStream(file)) {
-			String outString = "";
-			byte[] bytes = null;
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+		try {
 			for (long i = startIndex; i < endIndex; i++) {
 				if(i % 100000 == 0) LOG.info(i + " of " + endIndex);
-				outString = Integer.toString(getRandomNumber(1, endIndex)) + "\n";
-				bytes = outString.getBytes();
-				fop.write(bytes);
-				fop.flush();
+				bw.write(Integer.toString(getRandomNumber(1, endIndex)));
+				bw.write("\n");
 			}
-			fop.close();
 		} catch (IOException e) {
 			LOG.error("Error when creating large test file");
+		} finally{
+			bw.close();
 		}
 		return file;
 	}

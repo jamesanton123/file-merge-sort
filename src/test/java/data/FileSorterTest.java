@@ -38,7 +38,7 @@ public class FileSorterTest {
 		collection.add(new Object[]{1000});
 		collection.add(new Object[]{10000});
 		collection.add(new Object[]{100000});
-		collection.add(new Object[]{1000000});
+		collection.add(new Object[]{5000000});
 		collection.add(new Object[]{10000000});
 		return collection;
 	}
