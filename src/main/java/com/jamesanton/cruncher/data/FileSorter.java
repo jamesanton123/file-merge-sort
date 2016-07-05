@@ -55,10 +55,14 @@ public class FileSorter {
 	 * @param lineComparator
 	 * @return
 	 */
-	private int getLowestItemIndex(String[] bufferTop, Comparator<String> lineComparator) {
-		String[] clone = bufferTop.clone();
-		Arrays.sort(clone, lineComparator);
-		return Arrays.asList(bufferTop).indexOf(clone[0]);
+	private int getLowestItemIndex(String[] buffersTop, Comparator<String> lineComparator) {
+		int lowestIndex = 0;
+		for(int i = 1; i < buffersTop.length; i++){
+			if(lineComparator.compare(buffersTop[i], buffersTop[lowestIndex]) < 0){
+				lowestIndex = i;
+			}
+		}
+		return lowestIndex;
 	}
 
 	/**
@@ -162,15 +166,17 @@ public class FileSorter {
 		BufferedWriter bw = null;
 		try{
 			bw = new BufferedWriter(new FileWriter(out));
+			LOG.info("Begin merging loop");
 			while (buffersTop.length > 0) {
 				// Find the index of the first item after its sorted
 				index = getLowestItemIndex(buffersTop, lineComparator);				
 				bw.write(buffersTop[index]);
 				bw.write("\n");
+				
 				// Pop the next string from the buffered reader at that index 
 				String nextVal = bufferedReaders.get(index).readLine();
 				if (nextVal != null) {
-					// Put it into the buffertop at that index
+					// Put it into the buffersTop at that index
 					buffersTop[index] = nextVal;
 				} else {
 					//  What to do if the buffered reader runs out of data? Close it and remove it from the list.
@@ -179,7 +185,7 @@ public class FileSorter {
 					bufferedReaders.remove(index);
 				}
 			}
-		}finally{			
+		}finally{
 			try{
 				bw.close();
 			}catch(IOException e){
