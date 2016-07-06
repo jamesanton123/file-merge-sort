@@ -11,12 +11,11 @@ public class FileUtil {
 	
 	/**
 	 * Creates a file if it doesn't exist.
-	 * Then returns the file specified at the path.
+	 * Then returns the file specified
 	 * @param path
 	 * @return
 	 */
-	public static File createFileIfNotExists(String path) {
-		File f = new File(path);
+	public static File createFileIfNotExists(File f){
 		if(!f.exists()){
 			try {
 				f.createNewFile();
@@ -25,6 +24,17 @@ public class FileUtil {
 			}
 		}		
 		return f;
+	}
+	
+	/**
+	 * Creates a file if it doesn't exist.
+	 * Then returns the file specified at the path.
+	 * @param path
+	 * @return
+	 */
+	public static File createFileIfNotExists(String path) {
+		File f = new File(path);		
+		return createFileIfNotExists(f);
 	}
 	
 	/**
