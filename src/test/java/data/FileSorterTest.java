@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 import com.jamesanton.cruncher.data.MergeSort;
 import com.jamesanton.cruncher.data.merger.MergerException;
+import com.jamesanton.cruncher.data.sorter.SorterException;
 import com.jamesanton.cruncher.data.splitter.SplitterException;
 import com.jamesanton.cruncher.util.FileUtil;
 
@@ -35,7 +37,7 @@ public class FileSorterTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Collection<Object[]> collection = new ArrayList<Object[]>();
-		collection.add(new Object[]{40000000});
+		collection.add(new Object[]{100000000});
 		return collection;
 	}
 	
@@ -64,7 +66,7 @@ public class FileSorterTest {
 	}
 	
 	@Test
-	public void verifyFileSorterWorking() throws SplitterException, NumberFormatException, IOException, MergerException {	
+	public void verifyFileSorterWorking() throws SplitterException, NumberFormatException, IOException, MergerException, SorterException {	
 		long startMillis = System.currentTimeMillis();
 		try {
 			out = f.sortFile(bigFile, new Comparator<String>() {
@@ -78,8 +80,8 @@ public class FileSorterTest {
 		}
 		LOG.info(String.format("Num lines = %s \t time millis = %s", fileSizeInLines, 
 				System.currentTimeMillis() - startMillis));
-		
-		Assert.assertEquals(bigFile.getTotalSpace(), out.getTotalSpace());
+				
+		Assert.assertEquals(Files.lines(bigFile.toPath()).count(), Files.lines(out.toPath()).count());
 		
 		// Read the file line by line, verifying that each line is either
 		// greater than or equal to the previous line

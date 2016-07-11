@@ -48,7 +48,7 @@ public class OneToOneFileTOBufferedReaderMerger implements FileMerger{
 			for (File in : inputFolder.listFiles()) {
 				bufferedReaders.add(new BufferedReader(new FileReader(in.getAbsolutePath())));			
 			}
-			LOG.info("num buffered readers = " + bufferedReaders.size());
+			LOG.info("num buffered readers = " + bufferedReaders.size());						
 			// Set the initial bufferTops
 			String[] buffersTop = new String[bufferedReaders.size()];
 			for (int i = 0; i < bufferedReaders.size(); i++) {
@@ -96,9 +96,7 @@ public class OneToOneFileTOBufferedReaderMerger implements FileMerger{
 	}
 	
 	/**
-	 * Clones an array, sorts the clone, binary searches the 
-	 * original array for index of the first value in the cloned list
-	 * with the given comparator
+	 * Finds the index of the smallest item in an array.
 	 * @param bufferTop
 	 * @param lineComparator
 	 * @return

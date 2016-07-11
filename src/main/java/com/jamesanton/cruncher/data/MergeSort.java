@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.jamesanton.cruncher.data.merger.FileMerger;
 import com.jamesanton.cruncher.data.merger.MergerException;
-import com.jamesanton.cruncher.data.merger.impl.OneToOneFileTOBufferedReaderMerger;
+import com.jamesanton.cruncher.data.merger.impl.QueuedBatchesMerger;
 import com.jamesanton.cruncher.data.sorter.FileSorter;
 import com.jamesanton.cruncher.data.sorter.SorterException;
 import com.jamesanton.cruncher.data.sorter.impl.SequenceFileSorter;
@@ -25,7 +25,7 @@ import com.jamesanton.cruncher.util.FileUtil;
  */
 public class MergeSort {
 	private static final String FILE_SPLITTER_OUTPUT_PATH = "brokenUpFiles";
-	private static final String SORTED_PATH = "sortedSmallFilesPath";
+	private static final String SORTED_PATH = "sortedOutput";
 	private static final String OUT_FILE = "out";
 	private static final Logger LOG = Logger.getLogger(MergeSort.class);
 	
@@ -35,19 +35,17 @@ public class MergeSort {
 		File fileSplitterOutputFolder = new File(FILE_SPLITTER_OUTPUT_PATH);
 		File fileSorterOutputFolder = new File(SORTED_PATH);
 		
-		FileSplitter fileSplitter = new MaxLinesFileSplitter(10000000, inFile, fileSplitterOutputFolder);
-		
+		FileSplitter fileSplitter = new MaxLinesFileSplitter(1000000, inFile, fileSplitterOutputFolder);
 		FileSorter fileSorter = new SequenceFileSorter(lineComparator, fileSplitterOutputFolder, fileSorterOutputFolder);
-		
-		FileMerger fileMerger = new OneToOneFileTOBufferedReaderMerger(lineComparator, new File(SORTED_PATH));
-		
+		FileMerger fileMerger = new QueuedBatchesMerger(lineComparator, fileSorterOutputFolder);
+
 		FileUtil.removeFilesAndFolder(FILE_SPLITTER_OUTPUT_PATH, SORTED_PATH, OUT_FILE);
 		
 		fileSplitter.split();
 		fileSorter.sort();
 		out = fileMerger.merge();
 		
-		FileUtil.removeFilesAndFolder(FILE_SPLITTER_OUTPUT_PATH, SORTED_PATH);		
+		FileUtil.removeFilesAndFolder(FILE_SPLITTER_OUTPUT_PATH);		
 		return out;
 	}
 

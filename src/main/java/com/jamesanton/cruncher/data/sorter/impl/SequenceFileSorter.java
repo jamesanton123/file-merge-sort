@@ -33,7 +33,7 @@ public class SequenceFileSorter implements FileSorter{
 	 */
 	@Override
 	public void sort() throws SorterException {
-		LOG.info("Begin sorting files");
+		LOG.info("Begin sorting your " + sourceFolder.listFiles().length + " files");
 		sourceFolder.mkdirs();
 		for (File f : (sourceFolder.listFiles())) {
 			List<String> lines = null;

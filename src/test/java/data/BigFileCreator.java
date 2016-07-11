@@ -2,13 +2,10 @@ package data;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-
-import com.jamesanton.cruncher.data.FileSorter;
 
 /**
  * This is just a small utility to create files with random numbers as the lines

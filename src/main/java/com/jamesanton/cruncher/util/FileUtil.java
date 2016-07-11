@@ -50,4 +50,17 @@ public class FileUtil {
 			}
 		}
 	}
+	
+	/**
+	 * A simple file destroyer
+	 * @param paths
+	 * @throws IOException
+	 */
+	public static void removeFilesAndFolders(File... files) throws IOException {
+		for (File f : files) {			
+			if (f != null && f.exists()) {
+				FileUtils.forceDelete(f);
+			}
+		}
+	}
 }
