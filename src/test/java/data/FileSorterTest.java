@@ -2,12 +2,10 @@ package data;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 
 import org.apache.log4j.Logger;
@@ -19,12 +17,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.jamesanton.cruncher.data.FileSorter;
+import com.jamesanton.cruncher.data.MergeSort;
+import com.jamesanton.cruncher.data.merger.MergerException;
+import com.jamesanton.cruncher.data.splitter.SplitterException;
 import com.jamesanton.cruncher.util.FileUtil;
 
 @RunWith(Parameterized.class)
 public class FileSorterTest {
-	private FileSorter f = new FileSorter();
+	private MergeSort f = new MergeSort();
 	private static final Logger LOG = Logger.getLogger(FileSorterTest.class);
 	private static final String FILE_A_PATH = "in.txt";
 	private static final Long FILE_A_START = 0L;
@@ -35,11 +35,7 @@ public class FileSorterTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Collection<Object[]> collection = new ArrayList<Object[]>();
-		collection.add(new Object[]{1000});
-		collection.add(new Object[]{10000});
-		collection.add(new Object[]{100000});
-		collection.add(new Object[]{5000000});
-		collection.add(new Object[]{10000000});
+		collection.add(new Object[]{40000000});
 		return collection;
 	}
 	
@@ -68,12 +64,12 @@ public class FileSorterTest {
 	}
 	
 	@Test
-	public void verifyFileSorterWorking() throws FileNotFoundException, IOException {	
+	public void verifyFileSorterWorking() throws SplitterException, NumberFormatException, IOException, MergerException {	
 		long startMillis = System.currentTimeMillis();
 		try {
 			out = f.sortFile(bigFile, new Comparator<String>() {
 				@Override
-				public int compare(String o1, String o2) {
+				public int compare(String o1, String o2) {					
 					return (Integer.valueOf(o1)).compareTo(Integer.valueOf(o2));
 				}
 			});

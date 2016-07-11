@@ -44,6 +44,11 @@ public class BigFileCreator {
 		} finally{
 			bw.close();
 		}
+
+		long fileSizeInBytes = file.length();
+		long fileSizeInKB = fileSizeInBytes / 1024;
+		long fileSizeInMB = fileSizeInKB / 1024;
+		LOG.info("File size in megabytes: " + fileSizeInMB);
 		return file;
 	}
 	

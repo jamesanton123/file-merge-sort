@@ -45,7 +45,7 @@ public class OneToOneFileTOBufferedReaderMerger implements FileMerger{
 		BufferedWriter bw = null;
 		try{			
 			// Create a buffered reader for each of the sorted files
-			for (File in : (inputFolder.listFiles())) {
+			for (File in : inputFolder.listFiles()) {
 				bufferedReaders.add(new BufferedReader(new FileReader(in.getAbsolutePath())));			
 			}
 			LOG.info("num buffered readers = " + bufferedReaders.size());
